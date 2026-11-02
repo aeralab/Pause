@@ -1,0 +1,53 @@
+name: Pause native checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.swift"
+      - "project.yml"
+      - ".github/workflows/ios-check.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: stop-check-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: macos-26
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check selected SDK
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - name: Test actual Swift rules
+        run: swift test
+      - name: Install project generator
+        run: brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build all native targets without signing
+        run: |
+          set -o pipefail
+          xcodebuild -project Stop.xcodeproj -scheme Stop -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -configuration Debug \
+            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build | tee build.log
+      - name: Run iOS rules tests
+        run: |
+          set -o pipefail
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for values in d["devices"].values() for x in values if x["name"].startswith("iPhone")))')
+          xcodebuild -project Stop.xcodeproj -scheme Stop -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+            -resultBundlePath build/StopTests.xcresult CODE_SIGNING_ALLOWED=NO test | tee tests.log
+      - name: Upload diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stop-native-checks
+          path: |
+            build.log
+            tests.log
+            build/StopTests.xcresult
+          if-no-files-found: ignore
+          retention-days: 7

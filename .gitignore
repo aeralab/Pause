@@ -1,0 +1,12 @@
+.DS_Store
+.build/
+.swiftpm/
+Stop.xcodeproj/
+DerivedData/
+*.xcarchive/
+*.ipa
+*.p12
+*.mobileprovision
+*.p8
+.env
+build/
