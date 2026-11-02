@@ -10,11 +10,11 @@ final class StopShield: ShieldConfigurationDataSource {
             backgroundBlurStyle: .systemMaterial,
             backgroundColor: .systemBackground,
             icon: UIImage(systemName: task?.symbol ?? "pause.circle"),
-            title: .init(text: task.map { "��һ�Σ�" + $0.title } ?? "����Ϣһ����", color: .label),
-            subtitle: .init(text: "���������񼴿ɼ�����Ҳ���Դ�������ʼ�ȴ� 30 ���ӡ�", color: .secondaryLabel),
-            primaryButtonLabel: .init(text: "ȥ Pause ��ʼ����", color: .systemBackground),
+            title: .init(text: task.map { "这一次，" + $0.title } ?? "该休息一下了", color: .label),
+            subtitle: .init(text: "完成随机任务即可继续，也可以从锁定开始等待 30 分钟。", color: .secondaryLabel),
+            primaryButtonLabel: .init(text: "去 Pause 开始任务", color: .systemBackground),
             primaryButtonBackgroundColor: .label,
-            secondaryButtonLabel: .init(text: "�ȷ����ֻ�", color: .secondaryLabel)
+            secondaryButtonLabel: .init(text: "先放下手机", color: .secondaryLabel)
         )
     }
     override func configuration(shielding application: Application) -> ShieldConfiguration { makeConfiguration() }

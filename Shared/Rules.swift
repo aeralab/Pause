@@ -3,7 +3,7 @@ import Foundation
 enum TaskCategory: String, Codable, CaseIterable {
     case reading, movement, face
     var title: String {
-        switch self { case .reading: return "�Ķ�"; case .movement: return "�����˶�"; case .face: return "�沿�٤" }
+        switch self { case .reading: return "阅读"; case .movement: return "身体运动"; case .face: return "面部瑜伽" }
     }
 }
 struct RecoveryTask: Identifiable {
@@ -14,18 +14,18 @@ struct RecoveryTask: Identifiable {
     let symbol: String
     var seconds: TimeInterval { TimeInterval(minutes * 60) }
     static let all: [RecoveryTask] = [
-        .init(id: "literature", title: "��ѧ�Ķ�", minutes: 10, category: .reading, symbol: "book.closed"),
-        .init(id: "history", title: "��ʷ�Ķ�", minutes: 10, category: .reading, symbol: "book.closed"),
-        .init(id: "philosophy", title: "��ѧ�Ķ�", minutes: 10, category: .reading, symbol: "book.closed"),
-        .init(id: "science", title: "��ѧ�Ķ�", minutes: 10, category: .reading, symbol: "book.closed"),
-        .init(id: "eyeCare", title: "�۱�����", minutes: 5, category: .movement, symbol: "eye"),
-        .init(id: "eyes", title: "�۲�����", minutes: 10, category: .movement, symbol: "eye"),
-        .init(id: "face", title: "�沿�٤", minutes: 10, category: .face, symbol: "face.smiling"),
-        .init(id: "squats", title: "�¶�", minutes: 5, category: .movement, symbol: "figure.strengthtraining.functional"),
-        .init(id: "arms", title: "�ֱۻ", minutes: 5, category: .movement, symbol: "figure.flexibility"),
-        .init(id: "back", title: "�����", minutes: 5, category: .movement, symbol: "figure.flexibility"),
-        .init(id: "legs", title: "�Ȳ��", minutes: 5, category: .movement, symbol: "figure.walk"),
-        .init(id: "waist", title: "��������", minutes: 5, category: .movement, symbol: "figure.cooldown")
+        .init(id: "literature", title: "文学阅读", minutes: 10, category: .reading, symbol: "book.closed"),
+        .init(id: "history", title: "历史阅读", minutes: 10, category: .reading, symbol: "book.closed"),
+        .init(id: "philosophy", title: "哲学阅读", minutes: 10, category: .reading, symbol: "book.closed"),
+        .init(id: "science", title: "科学阅读", minutes: 10, category: .reading, symbol: "book.closed"),
+        .init(id: "eyeCare", title: "眼保健操", minutes: 5, category: .movement, symbol: "eye"),
+        .init(id: "eyes", title: "眼部放松", minutes: 10, category: .movement, symbol: "eye"),
+        .init(id: "face", title: "面部瑜伽", minutes: 10, category: .face, symbol: "face.smiling"),
+        .init(id: "squats", title: "下蹲", minutes: 5, category: .movement, symbol: "figure.strengthtraining.functional"),
+        .init(id: "arms", title: "手臂活动", minutes: 5, category: .movement, symbol: "figure.flexibility"),
+        .init(id: "back", title: "背部活动", minutes: 5, category: .movement, symbol: "figure.flexibility"),
+        .init(id: "legs", title: "腿部活动", minutes: 5, category: .movement, symbol: "figure.walk"),
+        .init(id: "waist", title: "腰部放松", minutes: 5, category: .movement, symbol: "figure.cooldown")
     ]
     static func find(_ id: String) -> RecoveryTask? { all.first { $0.id == id } }
     static func draw<R: RandomNumberGenerator>(after previous: TaskCategory?, using rng: inout R) -> RecoveryTask {

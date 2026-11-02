@@ -93,23 +93,23 @@ struct HomeView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Text("pause.").font(.system(size: 34, weight: .bold, design: .rounded))
                         Spacer()
-                        Text(model.snapshot.lock == nil ? "��һ��հ�" : "��Ϣ����ʱ").font(.caption).foregroundStyle(.secondary)
+                        Text(model.snapshot.lock == nil ? "留一点空白" : "休息进行时").font(.caption).foregroundStyle(.secondary)
                     }
                     Rectangle().frame(height: 1).foregroundStyle(Color.primary.opacity(0.15))
                     if let lock = model.snapshot.lock { recovery(lock) } else { setup }
                     if let error = model.error {
                         VStack(alignment: .leading, spacing: 10) {
-                            Label("��Ҫ����", systemImage: "exclamationmark.circle").font(.headline)
+                            Label("需要处理", systemImage: "exclamationmark.circle").font(.headline)
                             Text(error).font(.callout)
-                            Button("����") { model.refresh() }.buttonStyle(.bordered)
+                            Button("重试") { model.refresh() }.buttonStyle(.bordered)
                         }.padding(18).background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 12))
                     }
                     library
                     if !model.snapshot.history.isEmpty { history }
                     if model.snapshot.enabled {
-                        Button("ͣ������", role: .destructive) { showingDisable = true }.font(.footnote).foregroundStyle(.secondary)
+                        Button("停用限制", role: .destructive) { showingDisable = true }.font(.footnote).foregroundStyle(.secondary)
                     }
-                    Text("������ϰ�������ⲿ�ֻ���\n���ϴ��Ķ����˶��� App ʹ�ü�¼��")
+                    Text("自律练习，留在这部手机。\n不上传阅读、运动或 App 使用记录。")
                         .font(.caption).foregroundStyle(.secondary).lineSpacing(5)
                 }.padding(24).frame(maxWidth: 620).frame(maxWidth: .infinity)
             }
@@ -117,9 +117,9 @@ struct HomeView: View {
             .toolbar(.hidden, for: .navigationBar)
             .familyActivityPicker(isPresented: $showingPicker, selection: $selection)
             .fileImporter(isPresented: $showingImport, allowedContentTypes: [.plainText], allowsMultipleSelection: false, onCompletion: model.importBook)
-            .confirmationDialog("ͣ�û�������� App ���Ʋ�������ǰ����", isPresented: $showingDisable, titleVisibility: .visible) {
-                Button("ͣ�ò��������", role: .destructive) { model.disable() }
-                Button("��������", role: .cancel) {}
+            .confirmationDialog("停用会立即解除 App 限制并结束当前任务。", isPresented: $showingDisable, titleVisibility: .visible) {
+                Button("停用并解除限制", role: .destructive) { model.disable() }
+                Button("继续保持", role: .cancel) {}
             }
             .sheet(isPresented: $showingBook) { bookReader }
             .onChange(of: showingBook) { _, visible in
@@ -134,55 +134,55 @@ struct HomeView: View {
     }
     private var setup: some View {
         VStack(alignment: .leading, spacing: 22) {
-            Text("ˢһ�ᣬ\nҲͣһ�ᡣ").font(.system(size: 42, weight: .medium)).lineSpacing(5)
+            Text("刷一会，\n也停一会。").font(.system(size: 42, weight: .medium)).lineSpacing(5)
             HStack(alignment: .firstTextBaseline) {
                 Text("20").font(.system(size: 94, weight: .ultraLight, design: .monospaced))
-                Text("���� / ÿ��").font(.caption).foregroundStyle(.secondary)
+                Text("分钟 / 每轮").font(.caption).foregroundStyle(.secondary)
             }
-            Text("�ﵽʹ��ʱ������������Ķ��������˶����沿�٤��������񣬻��ߵȴ� 30 ���ӣ��ٿ�ʼ��һ�֡�")
+            Text("达到使用时长后，随机安排阅读、身体运动或面部瑜伽。完成任务，或者等待 30 分钟，再开始下一轮。")
                 .font(.callout).foregroundStyle(.secondary).lineSpacing(6)
             if model.snapshot.enabled {
-                Label(model.snapshot.cycleID == nil ? "��ش��ָ�" : "����������", systemImage: "checkmark.shield").font(.headline)
-                Text("ֱ��ʹ��ѡ���� App ���ɣ�ϵͳ�ں�̨��ʱ�����ﲻ����ʾδ��������ʵʱʹ�õ���ʱ��")
+                Label(model.snapshot.cycleID == nil ? "监控待恢复" : "限制已启用", systemImage: "checkmark.shield").font(.headline)
+                Text("直接使用选定的 App 即可，系统在后台计时。这里不会显示未经测量的实时使用倒计时。")
                     .font(.caption).foregroundStyle(.secondary)
             } else if !model.authorized {
-                primary("1. ��Ȩ��Ļʹ��ʱ��") { Task { await model.authorize() } }
+                primary("1. 授权屏幕使用时间") { Task { await model.authorize() } }
             } else {
-                Button("ѡ����Ҫ���Ƶ� App") { showingPicker = true }.buttonStyle(.bordered)
-                Text("��ѡ \(selection.applicationTokens.count) �� App �� \(selection.categoryTokens.count) ����� �� \(selection.webDomainTokens.count) ����վ")
+                Button("选择需要限制的 App") { showingPicker = true }.buttonStyle(.bordered)
+                Text("已选 \(selection.applicationTokens.count) 个 App · \(selection.categoryTokens.count) 个类别 · \(selection.webDomainTokens.count) 个网站")
                     .font(.caption).foregroundStyle(.secondary)
-                primary("���� Pause") { model.enable(selection) }
+                primary("启用 Pause") { model.enable(selection) }
             }
-            Text("΢�Ż��������ޣ��޷�ֻ�������е���Ƶ�š�������Ļʱ����Ȩ�����г�����Stop ����ŵ�޷��ƹ���")
+            Text("微信会整体受限，无法只限制其中的视频号。个人屏幕时间授权可自行撤销，Stop 不承诺无法绕过。")
                 .font(.caption).foregroundStyle(.secondary).lineSpacing(4)
         }
     }
     @ViewBuilder private func recovery(_ lock: LockState) -> some View {
         if let task = lock.task {
             VStack(alignment: .leading, spacing: 20) {
-                Text("��һ�Σ�\(task.category.title)��").font(.system(size: 34, weight: .medium))
-                HStack { Label(task.title, systemImage: task.symbol); Spacer(); Text("�������").foregroundStyle(.secondary) }.font(.callout)
+                Text("这一次，\(task.category.title)。").font(.system(size: 34, weight: .medium))
+                HStack { Label(task.title, systemImage: task.symbol); Spacer(); Text("随机安排").foregroundStyle(.secondary) }.font(.callout)
                 Text(clock(task.seconds - lock.creditedSeconds)).font(.system(size: 74, weight: .ultraLight, design: .monospaced)).minimumScaleFactor(0.6).lineLimit(1)
                 ProgressView(value: lock.creditedSeconds, total: task.seconds).tint(.primary)
-                primary(model.running ? "��ͣ" : "��ʼ / ����") { model.toggle() }
-                Text("Ҳ���Բ��������ٵ� \(clock(lock.waitEndsAt.timeIntervalSince(model.now))) �Զ�������")
+                primary(model.running ? "暂停" : "开始 / 继续") { model.toggle() }
+                Text("也可以不做任务，再等 \(clock(lock.waitEndsAt.timeIntervalSince(model.now))) 自动解锁。")
                     .font(.caption).foregroundStyle(.secondary)
-                Text("�뿪 Pause ����������ͣ���񣻵ȴ� 30 ���ӵ�ʱ���Լ������ؿ�Ӧ�ò������³�����")
+                Text("离开 Pause 或锁屏会暂停任务；等待 30 分钟的时间仍继续。重开应用不会重新抽任务。")
                     .font(.caption).foregroundStyle(.secondary).lineSpacing(4)
                 if task.category == .reading {
                     if let passage = ReadingPassage.library[task.id] {
                         Divider()
                         Text(passage.title).font(.title2.weight(.medium))
-                        Text("ԭ��������ϰ �� ���ض���˼��������Լ��������").font(.caption).foregroundStyle(.secondary)
+                        Text("原创短文练习 · 可重读、思考，或读自己导入的书").font(.caption).foregroundStyle(.secondary)
                         ForEach(passage.paragraphs, id: \.self) { Text($0).font(.system(size: fontSize)).lineSpacing(10).textSelection(.enabled) }
-                        Button("�ʶ�����") { model.speak(passage.paragraphs.joined(separator: "��")) }.buttonStyle(.bordered)
-                        if model.book != nil { Button("���ҵ������") { showingBook = true }.buttonStyle(.bordered) }
+                        Button("朗读短文") { model.speak(passage.paragraphs.joined(separator: "。")) }.buttonStyle(.bordered)
+                        if model.book != nil { Button("打开我导入的书") { showingBook = true }.buttonStyle(.bordered) }
                     }
                 } else {
                     MovementIllustration(task: task, elapsed: lock.creditedSeconds)
                         .frame(height: 180).frame(maxWidth: .infinity)
                         .background(Color.primary.opacity(0.035), in: RoundedRectangle(cornerRadius: 12))
-                        .accessibilityLabel("�Ỻ����ʾ�⣬����������ָ�������ʷ���Ϊ׼")
+                        .accessibilityLabel("轻缓动作示意，具体以文字指导和舒适幅度为准")
                     let guide = MovementGuide.forTask(task.id)
                     ForEach(Array(guide.steps.enumerated()), id: \.offset) { index, step in
                         HStack(alignment: .top, spacing: 14) {
@@ -190,8 +190,8 @@ struct HomeView: View {
                             Text(step)
                         }.font(.callout)
                     }
-                    Button("������ָ��") { model.speak(guide.spoken) }.buttonStyle(.bordered)
-                    Text("��ʱ������Ϣ�����������˶�����ʹ��ͷ�λ���ʱֹͣ���ɵȴ��������沿���۲���������ɣ����������ƻ�ı���ۡ�")
+                    Button("听动作指导") { model.speak(guide.spoken) }.buttonStyle(.bordered)
+                    Text("计时包含休息，无需连续运动。疼痛、头晕或不适时停止；可等待解锁。面部与眼部活动仅作放松，不宣称治疗或改变外观。")
                         .font(.caption).foregroundStyle(.secondary).lineSpacing(4)
                 }
             }
@@ -200,20 +200,20 @@ struct HomeView: View {
     private var library: some View {
         VStack(alignment: .leading, spacing: 12) {
             Divider()
-            Text("�ҵ��Ķ�").font(.headline)
-            Text(model.book?.name ?? "��ѧ / ��ʷ / ��ѧ / ��ѧ��֧�ֵ����Լ����顣")
+            Text("我的阅读").font(.headline)
+            Text(model.book?.name ?? "文学 / 历史 / 哲学 / 科学，支持导入自己的书。")
                 .font(.callout).foregroundStyle(.secondary)
             HStack {
-                Button("���� TXT") { showingImport = true }.buttonStyle(.bordered)
-                if model.book != nil { Button("�Ķ�") { showingBook = true }.buttonStyle(.bordered) }
+                Button("导入 TXT") { showingImport = true }.buttonStyle(.bordered)
+                if model.book != nil { Button("阅读") { showingBook = true }.buttonStyle(.bordered) }
             }
-            HStack { Text("�ֺ�").font(.caption); Slider(value: $fontSize, in: 16...28, step: 1) }
+            HStack { Text("字号").font(.caption); Slider(value: $fontSize, in: 16...28, step: 1) }
         }
     }
     private var history: some View {
         VStack(alignment: .leading, spacing: 16) {
             Divider()
-            Text("�����¼").font(.headline)
+            Text("最近记录").font(.headline)
             ForEach(model.snapshot.history.prefix(10)) { item in
                 HStack(alignment: .top) {
                     Text(item.text).font(.callout); Spacer()
@@ -228,16 +228,16 @@ struct HomeView: View {
                 if let book = model.book {
                     LazyVStack(alignment: .leading, spacing: 18) {
                         if model.snapshot.lock != nil {
-                            Text(model.running ? "�Ķ���ʱ��" : "�Ķ���ʱ����ͣ���رմ�ҳ��㿪ʼ����").font(.caption).foregroundStyle(.secondary)
+                            Text(model.running ? "阅读计时中" : "阅读计时已暂停；关闭此页后点开始继续").font(.caption).foregroundStyle(.secondary)
                         }
                         ForEach(Array(book.text.components(separatedBy: "\n").enumerated()), id: \.offset) { _, line in
                             if !line.isEmpty { Text(line).font(.system(size: fontSize)).lineSpacing(9).textSelection(.enabled) }
                         }
                     }.padding(24)
                 }
-            }.navigationTitle(model.book?.name ?? "�Ķ�")
+            }.navigationTitle(model.book?.name ?? "阅读")
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("���") { showingBook = false } } }
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("完成") { showingBook = false } } }
         }
     }
     private func primary(_ text: String, action: @escaping () -> Void) -> some View {

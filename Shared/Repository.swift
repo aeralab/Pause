@@ -25,12 +25,12 @@ enum StopFailure: LocalizedError {
     case unavailableGroup, busy, invalidState, authorization, emptySelection, alreadyActive
     var errorDescription: String? {
         switch self {
-        case .unavailableGroup: return "�������������ã������� App ����չ�� App Group ǩ����"
-        case .busy: return "�������ڸ��£����Ժ����ԡ�"
-        case .invalidState: return "�����޷���ȡ���ѱ���ԭ�ļ������ȼ�鰲װ����־��"
-        case .authorization: return "������Ȩ��Ļʹ��ʱ�䡣"
-        case .emptySelection: return "������ѡ��һ����Ҫ���Ƶ� App ����վ��"
-        case .alreadyActive: return "���������á�������������ͣ�ã��������õ�ǰ��ʱ��"
+        case .unavailableGroup: return "共享容器不可用，请检查主 App 与扩展的 App Group 签名。"
+        case .busy: return "进度正在更新，请稍后重试。"
+        case .invalidState: return "进度无法读取，已保留原文件，请先检查安装与日志。"
+        case .authorization: return "请先授权屏幕使用时间。"
+        case .emptySelection: return "请至少选择一个需要限制的 App 或网站。"
+        case .alreadyActive: return "限制已启用。重新设置需先停用，避免重置当前计时。"
         }
     }
 }

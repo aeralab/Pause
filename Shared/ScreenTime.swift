@@ -22,7 +22,7 @@ final class ScreenTime {
             guard state.hasSelection else { throw StopFailure.emptySelection }
             state.enabled = true; state.lastError = nil
             armUsage(&state)
-            state.record(state.cycleID == nil ? "����δ��ɣ��ȴ�����" : "�����ã��ۼ�ʹ�� 20 ���Ӻ���Ϣ")
+            state.record(state.cycleID == nil ? "启用未完成，等待重试" : "已启用：累计使用 20 分钟后休息")
         }
     }
     private func armUsage(_ state: inout StopState) {
@@ -37,7 +37,7 @@ final class ScreenTime {
             let old = state.cycleID
             state.cycleID = name; state.cycleEndsAt = end; state.lastError = nil
             if let old { center.stopMonitoring([.init(old)]) }
-        } catch { state.lastError = "ʹ�ü��δ������" + error.localizedDescription }
+        } catch { state.lastError = "使用监控未启动：" + error.localizedDescription }
     }
     private func applyShield(_ state: StopState) {
         store.shield.applications = state.selection.applicationTokens
@@ -53,7 +53,7 @@ final class ScreenTime {
         do {
             try center.startMonitoring(.init(name), during: schedule(from: lock.startedAt, to: lock.waitEndsAt))
             state.cooldownID = name; state.lastError = nil
-        } catch { state.lastError = "��̨��Ϣ���δ�������뵽ʱ�� Stop �ָ���" + error.localizedDescription }
+        } catch { state.lastError = "后台休息监控未启动，请到时打开 Stop 恢复：" + error.localizedDescription }
     }
     func reachedThreshold(activity: String) {
         performInExtension { state in
@@ -63,13 +63,13 @@ final class ScreenTime {
             state.lock = LockState(startedAt: Date(), taskID: task.id)
             state.previousCategory = task.category
             applyShield(state)
-            state.record("�ۼ�ʹ�� 20 ���ӣ���������" + task.title)
+            state.record("累计使用 20 分钟，分配任务：" + task.title)
             armCooldown(&state)
         }
     }
     private func unlockIfEligible(_ state: inout StopState) {
         guard let lock = state.lock, lock.canUnlock(at: Date()) else { return }
-        let reason = Date() >= lock.waitEndsAt ? "�ȴ� 30 ���ӣ��ѽ���" : "���" + (lock.task?.title ?? "����") + "���ѽ���"
+        let reason = Date() >= lock.waitEndsAt ? "等待 30 分钟，已解锁" : "完成" + (lock.task?.title ?? "任务") + "，已解锁"
         let cooldown = state.cooldownID, cycle = state.cycleID
         state.lock = nil; state.cooldownID = nil; state.cycleID = nil; state.cycleEndsAt = nil
         store.clearAllSettings()
@@ -84,8 +84,8 @@ final class ScreenTime {
             guard AuthorizationCenter.shared.authorizationStatus == .approved else {
                 state.enabled = false; state.lock = nil; state.cycleID = nil; state.cooldownID = nil; state.cycleEndsAt = nil
                 center.stopMonitoring(); store.clearAllSettings()
-                state.lastError = "��Ļʹ��ʱ����Ȩ�ѳ�����������ͣ�á�"
-                state.record("��Ȩ�ѳ���")
+                state.lastError = "屏幕使用时间授权已撤销，限制已停用。"
+                state.record("授权已撤销")
                 return state
             }
             if let lock = state.lock {
@@ -108,7 +108,7 @@ final class ScreenTime {
     func disable() throws {
         try repository.withState { state in
             state.enabled = false; state.lock = nil; state.cycleID = nil; state.cooldownID = nil; state.cycleEndsAt = nil; state.lastError = nil
-            center.stopMonitoring(); store.clearAllSettings(); state.record("�ֶ�ͣ������")
+            center.stopMonitoring(); store.clearAllSettings(); state.record("手动停用限制")
         }
     }
     func intervalEnded(_ name: String) {
