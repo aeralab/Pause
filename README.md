@@ -1,6 +1,6 @@
 # Pause 原生版 · 随机恢复任务
 
-版本 0.2.0，针对 iPhone15 / iOS26.6.1。最低部署 iOS17.4，构建要求 Xcode 的 iOS26.5+ SDK。Windows 上已完成源码更新；尚未执行 Swift 编译、XCTest 或真机验证，不是可安装成品。
+版本 0.2.0，针对 iPhone15 / iOS26.6.1。最低部署 iOS17.4，构建要求 Xcode 的 iOS26.5+ SDK。2026-11-02 已通过 GitHub macOS 的 Swift 规则测试、四个原生目标的无签名模拟器编译和 iOS XCTest。尚未签名或真机验证，不是可安装成品。
 
 ## 已实现源码
 选定App累计20分钟后，后台监控扩展施加系统限制。先从阅读、身体运动、面部瑜伽3类中随机选择，再抽具体任务；连续两轮不重复大类。每轮固定任务并持久化，暂停、重开不重新抽取。
@@ -9,7 +9,7 @@
 任务仅在前台计时；后台/锁屏暂停，等待期限继续。支持手动确认停用。所有记录和导入书籍仅在本机保存，不接服务器、不添加分析SDK。
 
 ## 编译
-本ios目录应为GitHub私有仓库根目录（包含.github）。工作流在 main 分支的 Swift 源码或构建配置改变时自动触发，也支持手动触发。使用公开仓库的标准 macOS 运行器，不使用付费大型运行器。
+本ios目录为GitHub仓库根目录（包含.github）。工作流在 main 分支的 Swift 源码或构建配置改变时自动触发，也支持手动触发。使用公开仓库的标准 macOS 运行器，不使用付费大型运行器。
 1. 在云端Mac运行 swift test，检查实际Swift随机任务规则。
 2. xcodegen generate 生成 Stop、StopMonitor、StopShield、StopShieldAction 四个原生target。
 3. 无签名模拟器构建检查所有目标，再执行XCTest。GitHub工作流会保存编译日志与测试结果。
@@ -34,3 +34,10 @@ https://developer.apple.com/documentation/managedsettings/shieldactionresponse/o
 https://developer.apple.com/documentation/deviceactivity
 https://developer.apple.com/documentation/familycontrols/requesting-the-family-controls-entitlement
 https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+
+## 云端检查记录
+
+仓库：https://github.com/aeralab/Pause （Public）
+已检验源码提交：4486f697dd3414368429c03b858347a0ca9c0a7c
+成功运行：https://github.com/aeralab/Pause/actions/runs/41377062719
+3项 Swift Package 测试与6项iOS XCTest通过。主App及Monitor、Shield、ShieldAction均编译成功；未验证真实屏幕时间回调和App Group签名。
